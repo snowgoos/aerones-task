@@ -1,0 +1,75 @@
+name: aerones
+recipe: laravel
+
+config:
+  via: nginx
+  php: 8.2
+  xdebug: true
+  composer_version: 2.7.0
+  webroot: /public
+
+services:
+  appserver:
+    type: php:8.2
+    build_as_root:
+      - apt-get update -y
+      - docker-php-ext-install sockets
+      - docker-php-ext-enable sockets
+    overrides:
+      environment:
+        PHP_IDE_CONFIG: "serverName=appserver"
+        XDEBUG_SESSION_START: lando
+        XDEBUG_CONFIG: "remote_enable=1"
+
+  database:
+    type: postgres:15
+    creds:
+      database: aerones
+      user: postgres
+      password: psql
+
+#  rabbitmq:
+#    type: lando
+#    api: 3
+#    services:
+#      image: rabbitmq:3-management
+#      hostname: "rabbit"
+#      command: rabbitmq-server
+#      ports:
+#        - 15672:15672
+#        - 5672:5672
+
+  node:
+    type: node:20
+    build:
+      - npm install
+      - npm run build
+
+proxy:
+  mailhog:
+    - mail.mortgage-erp.lndo.site
+#  rabbitmq:
+#    - hostname: rabbitmq.mortgage-erp.lndo.site
+#      port: 15673
+#      external: 80
+
+tooling:
+  node:
+    service: node
+  npm:
+    service: node
+  warmup:
+    service: appserver
+    cmd:
+      - appserver: 'composer install'
+      - appserver: 'composer install --working-dir tools'
+      - appserver: 'php artisan migrate'
+      - appserver: 'php artisan cache:clear'
+      - appserver: 'php artisan config:clear'
+      - appserver: 'php artisan view:clear'
+      - node: 'npm install'
+      - node: 'npm run build'
+  csfixer:
+    service: appserver
+    cmd:
+      - appserver: 'composer run-script csfixer'
