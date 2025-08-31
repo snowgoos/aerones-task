@@ -148,7 +148,7 @@ class ReactDownloader implements DownloaderInterface
             });
 
         $deferred->promise();
-//        $loop->run();
+        //        $loop->run();
     }
 
     // TODO: move from downloader

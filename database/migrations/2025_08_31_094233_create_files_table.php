@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Models\File;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\File;
 
-return new class extends Migration {
+return new class () extends Migration {
     public function up(): void
     {
         Schema::create('files', function (Blueprint $table) {
