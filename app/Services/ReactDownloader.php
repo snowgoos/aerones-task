@@ -88,12 +88,13 @@ class ReactDownloader implements DownloaderInterface
                 ) {
                     $body = $response->getBody();
 
-                    // Save total size if Content-Length is available
                     if ($response->hasHeader('Content-Length')) {
                         $file->update(['size' => (int)$response->getHeaderLine('Content-Length')]);
                     }
 
                     $body->on('data', function ($chunk) use ($writable, $tempFilePath, $file) {
+                        // TODO: logger spam need to fix
+                        $this->logger("Partial chunk write");
                         $this->updateStatus($file, File::STATUS_IN_PROGRESS);
                     });
 
@@ -101,8 +102,8 @@ class ReactDownloader implements DownloaderInterface
                         $writable->end();
                         rename($tempFilePath, $completedFilePath);
 
-                        $file->status = File::STATUS_COMPLETED;
-                        $file->progress = filesize($completedFilePath);
+                        $this->logger("Download stream ended");
+                        $this->updateStatus($file, File::STATUS_COMPLETED);
                     });
 
                     $body->on('error', function ($error) use (
@@ -118,7 +119,7 @@ class ReactDownloader implements DownloaderInterface
                         $deferred->reject($error);
                     });
                 },
-                function (Throwable $e) use ($url, $file) {
+                function (\Exception $e) use ($url, $file) {
                     $file->status = File::STATUS_FAILED;
 
                     Log::error("Download failed for {$url}: " . $e->getMessage());
@@ -129,22 +130,9 @@ class ReactDownloader implements DownloaderInterface
                 $deferred,
                 $file,
                 $logData,
-                $retryCount
             ) {
-                if (is_resource($fileHandle)) {
-                    fclose($fileHandle);
-                }
-
                 $logData['error'] = $error->getMessage();
                 $this->logger("Download request failed", $logData);
-
-                if ($retryCount < 5) {
-                    $this->logger("Retrying download", $logData);
-                    $deferred->resolve($this->download($file->url));
-                } else {
-                    $this->updateStatus($file, File::STATUS_FAILED);
-                    $deferred->reject(new \RuntimeException("Download failed after 5 retries"));
-                }
             });
 
         $deferred->promise();
