@@ -5,7 +5,7 @@ The project is containerized with Lando, making it easy to set up and review.
 
 
 ## Quick Setup Instructions
-#### Install Lando
+### Install Lando
 
 1. If you haven't installed Lando yet, follow these steps:
    
@@ -26,6 +26,18 @@ Download and install Lando from Lando's official [site](https://docs.lando.dev/i
 2. Start Lando Environment
 ```
 lando start
+```
+
+### Lando additional information
+```
+lando list
+lando info
+```
+
+### Lando stop and destroy container
+```
+lando stop
+lando destroy
 ```
 
 ## How to test
