@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Repositories\FileRepository;
 use App\Services\DownloaderInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -12,18 +13,18 @@ class DownloadFileJob implements ShouldQueue
 {
     use Queueable;
 
-    private array $urls;
+    private array $ids;
 
-    public function __construct(array $urls)
+    public function __construct(array $ids)
     {
-        $this->urls = $urls;
+        $this->ids = $ids;
     }
 
-    public function handle(DownloaderInterface $downloader): void
-    {
-        foreach ($this->urls as $url) {
-            // TODO: create concurrency call
-            $downloader->download($url);
-        }
+    public function handle(
+        FileRepository      $fileRepository,
+        DownloaderInterface $downloader
+    ): void {
+        $files = $fileRepository->getWhereIdIn($this->ids);
+        $downloader->download($files);
     }
 }

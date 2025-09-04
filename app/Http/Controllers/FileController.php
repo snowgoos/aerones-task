@@ -8,6 +8,7 @@ use App\Http\Requests\FileStoreRequest;
 use App\Jobs\DownloadFileJob;
 use App\Models\File;
 use App\Repositories\FileRepository;
+use App\Services\DownloaderInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,8 +16,10 @@ use Illuminate\View\View;
 
 class FileController extends Controller
 {
-    public function __construct(private readonly FileRepository $fileRepository)
-    {
+    public function __construct(
+        private readonly FileRepository $fileRepository,
+        private DownloaderInterface     $downloader
+    ) {
     }
 
     public function index(): View
@@ -46,7 +49,7 @@ class FileController extends Controller
     {
         $files = $this->fileRepository->getWhereIdIn($request->get('force_download_ids'));
 
-        DownloadFileJob::dispatch($files->pluck('url')->toArray());
+        DownloadFileJob::dispatch($files->pluck('id')->toArray());
 
         return redirect()->route('files.index');
     }

@@ -15,8 +15,8 @@ return new class () extends Migration {
             $table->string('name');
             $table->text('url')->unique();
             $table->unsignedTinyInteger('status')->default(File::STATUS_PENDING);
-            $table->unsignedBigInteger('size')->nullable();
-            $table->unsignedInteger('progress')->nullable()->default(0);
+            $table->unsignedBigInteger('full_size')->nullable();
+            $table->unsignedBigInteger('downloaded_size')->nullable()->default(0);
             $table->timestamps();
         });
     }

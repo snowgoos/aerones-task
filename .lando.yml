@@ -64,6 +64,7 @@ tooling:
       - appserver: 'composer install'
       - appserver: 'composer install --working-dir tools'
       - appserver: 'php artisan migrate'
+      - appserver: 'php artisan db:seed'
       - appserver: 'php artisan cache:clear'
       - appserver: 'php artisan config:clear'
       - appserver: 'php artisan view:clear'

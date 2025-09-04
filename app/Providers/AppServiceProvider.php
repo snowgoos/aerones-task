@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Services\DownloaderInterface;
-use App\Services\ReactDownloader;
+use App\Services\ReactDownloaderService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(TelescopeServiceProvider::class);
         }
 
-        $this->app->bind(DownloaderInterface::class, ReactDownloader::class);
+        $this->app->bind(DownloaderInterface::class, ReactDownloaderService::class);
     }
 
     public function boot(): void
